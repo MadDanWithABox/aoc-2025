@@ -16,7 +16,7 @@ def process_range(range_str: str):
     numbers.extend(num for num in range(start, end + 1))
     return numbers
 
-def check_num_for_repeats(num: int) -> bool:
+def check_num_for_two_repeats(num: int) -> bool:
     s_num = str(num)
     length = len(s_num)
     
@@ -28,6 +28,24 @@ def check_num_for_repeats(num: int) -> bool:
     # compare for equality
     return s_num[:midpoint] == s_num[midpoint:]
 
+
+def check_num_for_repeats(num: int) -> bool:
+    s_num = str(num)
+    length = len(s_num)
+    # patern length can be at most half the total length 
+    for i in range(1, (length // 2) + 1):
+        
+        # total len must be divisible by the pattern len
+        if length % i == 0:
+            pattern = s_num[:i]
+            multiplier = length // i
+            
+            # 2. Check if the pattern repeated 'multiplier' equals the original string
+            if pattern * multiplier == s_num:
+                return True
+                
+    return False
+
 def part1(input_data: str| None):
     if input_data == None:
         input_data = TEST_DATA
@@ -37,7 +55,7 @@ def part1(input_data: str| None):
     for r in parsed:
         numbers_list = process_range(r)
         for num in numbers_list:
-            if check_num_for_repeats(num):
+            if check_num_for_two_repeats(num):
                 mirror_numbers.append(num)
     return(sum(mirror_numbers))
 
@@ -45,7 +63,15 @@ def part1(input_data: str| None):
 def part2(input_data:str|None):
     if input_data == None:
         input_data = TEST_DATA
+    perfect_repeats = []
     parsed = parse(input_data)
+    for r in parsed:
+        numbers_list = process_range(r)
+        for num in numbers_list:
+            if check_num_for_repeats(num):
+                perfect_repeats.append(num)
+    return(sum(perfect_repeats))
+
 
     print("running part 2")
 
