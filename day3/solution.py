@@ -27,6 +27,40 @@ def get_biggest_values(battery_bank: str):
                 sec_index = i
     return int(f"{biggest_joltage}{sec_joltage}")
 
+def get_biggest_k_values(battery_bank: str, k: int) -> int:
+    """
+    Finds the largest number formed by selecting exactly k digits from the battery_bank string.
+    """
+    jolt_list = [digit for digit in battery_bank] # Keep as strings
+    n = len(jolt_list)
+    result = []
+    
+    current_start_index = 0
+    
+    # We need to select 'k' digits in total
+    for num_digits_to_select in range(k, 0, -1):
+        
+        search_end_index = n - num_digits_to_select
+        
+        best_digit = '0'
+        best_index = -1
+        
+        # Iterate through the search window (from current_start_index up to search_end_index)
+        for i in range(current_start_index, search_end_index + 1):
+            digit = jolt_list[i]
+            
+            # greedy. Pick largest digit and in cases of a ti e pick the one on the left
+            # Picking leftmost to get more space for lateer searches
+            if digit > best_digit:
+                best_digit = digit
+                best_index = i
+        result.append(best_digit)
+        current_start_index = best_index + 1
+        
+    return int("".join(result))
+
+
+
 def part1(input_data: str| None):
     joltages = []
     if input_data == None:
@@ -36,14 +70,16 @@ def part1(input_data: str| None):
         joltages.append(get_biggest_values(bank))
     return sum(joltages)
         
-
-
-
-
 def part2(input_data: str| None):
     if input_data == None:
         input_data = TEST_DATA
+        
     bat_banks = get_banks(input_data)
+    joltages = []
+    for bank in bat_banks:
+        joltages.append(get_biggest_k_values(bank, 12))
+        
+    return sum(joltages)
 
 
 
