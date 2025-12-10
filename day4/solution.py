@@ -77,6 +77,68 @@ def process_roll_rack(input_grid, threshold=8):
                     low_count_positions += 1
     return result_grid, low_count_positions
 
+
+def iterate_roll_rack(current_grid, threshold=4):
+    """
+    Performs a single simulation pass over the grid.
+
+    It calculates the state of the next grid based entirely on the current grid
+    and returns the new grid and the number of changes made.
+    """
+    num_rows = len(current_grid)
+    if num_rows == 0:
+        return current_grid, 0
+    num_cols = len(current_grid[0])
+    
+    # Initialize the next grid as a copy of the current grid.
+    next_grid = [row[:] for row in current_grid] # Deep copy the grid
+    rolls_removed = 0
+
+    for r in range(num_rows):
+        for c in range(num_cols):
+            
+            current_cell_value = current_grid[r][c]
+
+            if current_cell_value == '@':
+                neighbor_count = count_at_neighbors(current_grid, r, c)
+                
+                if neighbor_count < threshold:
+                    next_grid[r][c] = '.'
+                    rolls_removed += 1
+                    
+    return next_grid, rolls_removed
+
+def get_elves_moving_rolls(current_grid, threshold=4):
+    """
+    Runs the full simulation until the grid stabilizes (0 changes in a pass).
+    
+    Returns the final stable grid and the total number of iterations.
+    """
+    
+    iteration = 0
+    total_changes = 0
+    
+    while True:
+        iteration += 1
+        
+        new_grid, changes_in_pass = iterate_roll_rack(current_grid, threshold)
+        
+        print(f"--- Iteration {iteration} ---")
+        print(f"Changes this pass: {changes_in_pass}")
+        
+        if changes_in_pass == 0:
+            # If no changes were made, the grid is stable.
+            print("\nGrid stabilized.")
+            break
+        
+        # Update the grid for the next iteration
+        current_grid = new_grid
+        total_changes += changes_in_pass
+        
+    return current_grid, iteration, total_changes
+
+
+
 def part1(input_data: str| None):
     if input_data == None:
         input_data = TEST_DATA
@@ -91,6 +153,9 @@ def part1(input_data: str| None):
 def part2(input_data: str| None):
     if input_data == None:
         input_data = TEST_DATA
+    input_grid = parse(input_data)
+    result, iteration, total_changes = get_elves_moving_rolls(input_grid)
+    return total_changes
         
 
 
