@@ -90,6 +90,16 @@ def is_ingredient_fresh(ingredient_id, freshness_ranges):
     # If the loop completes without finding a match
     return False
 
+def calculate_cumulative_range_lengths(merged_ranges):
+    """requires the merged ranges from part1. simply calculates inclusive length and returns cumulative result"""
+    total_length = 0
+    
+    for start, end in merged_ranges:
+        # Length of an inclusive range (start, end) is end - start + 1
+        length = end - start + 1
+        total_length += length
+        
+    return total_length
 
 def part1(input_data: str | None) -> int:
     if input_data is None:
@@ -110,6 +120,9 @@ def part1(input_data: str | None) -> int:
 def part2(input_data: str | None) -> int:
     if input_data is None:
         input_data = TEST_DATA
+    fresh_ranges, _ = parse(input_data)
+    fresh_ranges = merge_overlapping_ranges(fresh_ranges)
+    return calculate_cumulative_range_lengths(fresh_ranges)
 
 
 if __name__ == "__main__":
