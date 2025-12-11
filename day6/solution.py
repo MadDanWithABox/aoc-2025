@@ -1,6 +1,7 @@
 from wrapper import aoc_runner
 from typing import List
 from functools import reduce
+from itertools import zip_longest
 
 import operator
 
@@ -11,7 +12,6 @@ TEST_DATA = """123 328  51 64
 *   +   *   + """
 
 def parse(data_str):
-    "splits input data string into a 2D vector of rolls and gaps"
     rows = data_str.split("\n")
     grid = []
     for row_str in rows:
@@ -31,6 +31,7 @@ def construct_sums(grid_of_strs):
             calc.append(grid_of_strs[j][i])
         sums.append(calc)
     return sums
+
 
 def apply_operator_to_list(operator_symbol, data_list):
     """
@@ -63,7 +64,51 @@ def compute_calc(calc: List[str]):
 
     return apply_operator_to_list(operation, data_list)
 
+def compute_cephalopod_calc(calc: List[str]):
+    """
+    Given a column of numbers and an operator as strings:
+    ['123', '45', '6', '*']
+    extracts the operator
+    parses the numbers columnwise
+    returns the calculation
+    
+    Process:
+    We need to reverse the numbers, because cephalopod math reads from the RHS.
+    123 -> 321. 45 -> 54. 6 -> 6
 
+    Now we need to construct based on character position (these are still strings)
+    based on zeroth character, we take "321"[0] == 3, then "54"[0] == 5 then "6"[0] == "356"
+    then the first character, so "321"[1]=="2", "54"[1] == "4", "6"[1] is out of range, so we ignore that. == "24"
+    Then the second character, the only num_str which has a value is "321"[1] == "1"
+    So we should return [356, 24, 1], ["*"]
+    
+    """
+    operator_symbol = calc[-1]
+    number_strings = calc[:-1]
+    max_len = max(len(s) for s in number_strings)
+    padded_slices = [s.ljust(max_len, ' ') for s in number_strings]
+    reversed_slices = [s[::-1] for s in padded_slices]
+
+    # 3. Transpose (read columnwise) to reconstruct the new numbers
+    new_number_components = []
+    
+    # zip_longest(321, 54, 6) will produce:
+    # ('3', '5', '6') -> The digits for the first new number (356)
+    # ('2', '4', ' ') -> The digits for the second new number (24)
+    # ('1', ' ', ' ') -> The digits for the third new number (1)
+    for digits in zip_longest(*reversed_strings, fillvalue=' '):
+        # Concatenate the digits, ignoring padding spaces
+        new_number_str = "".join(d.strip() for d in digits if d.strip())
+
+        if new_number_str:
+            new_number_components.append(new_number_str)
+    data_list = []
+    for i in new_number_components:
+        data_list.append(int(i))
+    print(calc)
+    print(data_list)
+    print(operator_symbol)
+    return apply_operator_to_list(operator_symbol, data_list)
 
 def part1(input_data: str | None) -> int:
     if input_data is None:
@@ -81,6 +126,12 @@ def part1(input_data: str | None) -> int:
 def part2(input_data: str | None) -> int:
     if input_data is None:
         input_data = TEST_DATA
+    grid = parse(input_data)
+    columns = construct_sums(grid)
+    results = []
+    for calc in columns:
+        results.append(compute_cephalopod_calc(calc))
+    return sum(results)
 
 
 if __name__ == "__main__":
