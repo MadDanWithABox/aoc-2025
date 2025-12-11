@@ -85,30 +85,50 @@ def compute_cephalopod_calc(calc: List[str]):
     """
     operator_symbol = calc[-1]
     number_strings = calc[:-1]
-    max_len = max(len(s) for s in number_strings)
-    padded_slices = [s.ljust(max_len, ' ') for s in number_strings]
-    reversed_slices = [s[::-1] for s in padded_slices]
-
-    # 3. Transpose (read columnwise) to reconstruct the new numbers
-    new_number_components = []
+    if operator_symbol  == "*":
+        max_len = max(len(s) for s in number_strings)
+        padded_slices = [s.rjust(max_len, ' ') for s in number_strings]
+        reversed_slices = [s[::-1] for s in padded_slices]
     
-    # zip_longest(321, 54, 6) will produce:
-    # ('3', '5', '6') -> The digits for the first new number (356)
-    # ('2', '4', ' ') -> The digits for the second new number (24)
-    # ('1', ' ', ' ') -> The digits for the third new number (1)
-    for digits in zip_longest(*reversed_strings, fillvalue=' '):
-        # Concatenate the digits, ignoring padding spaces
-        new_number_str = "".join(d.strip() for d in digits if d.strip())
+        # 3. Transpose (read columnwise) to reconstruct the new numbers
+        new_number_components = []
+        
+        # zip_longest(321, 54, 6) will produce:
+        # ('3', '5', '6') -> The digits for the first new number (356)
+        # ('2', '4', ' ') -> The digits for the second new number (24)
+        # ('1', ' ', ' ') -> The digits for the third new number (1)
+        for digits_tuple in zip_longest(*reversed_slices, fillvalue=' '):
 
-        if new_number_str:
-            new_number_components.append(new_number_str)
-    data_list = []
-    for i in new_number_components:
-        data_list.append(int(i))
+            # Concatenate the digits, ignoring padding spaces
+            new_number_str = "".join(d.strip() for d in digits_tuple if d.strip())
+
+            if new_number_str:
+                new_number_components.append(new_number_str)
+        final_numbers = [int(n) for n in new_number_components][::-1]
+    elif operator_symbol == "+":
+        max_len = max(len(s) for s in number_strings)
+        padded_slices = [s.ljust(max_len, ' ') for s in number_strings]
+        reversed_slices = [s[::-1] for s in padded_slices]
+    
+        # 3. Transpose (read columnwise) to reconstruct the new numbers
+        new_number_components = []
+        
+        # zip_longest(321, 54, 6) will produce:
+        # ('3', '5', '6') -> The digits for the first new number (356)
+        # ('2', '4', ' ') -> The digits for the second new number (24)
+        # ('1', ' ', ' ') -> The digits for the third new number (1)
+        for digits_tuple in zip_longest(*reversed_slices, fillvalue=' '):
+
+            # Concatenate the digits, ignoring padding spaces
+            new_number_str = "".join(d.strip() for d in digits_tuple if d.strip())
+
+            if new_number_str:
+                new_number_components.append(new_number_str)
+        final_numbers = [int(n) for n in new_number_components][::-1]
+
+    print(final_numbers)
     print(calc)
-    print(data_list)
-    print(operator_symbol)
-    return apply_operator_to_list(operator_symbol, data_list)
+    return apply_operator_to_list(operator_symbol, final_numbers)
 
 def part1(input_data: str | None) -> int:
     if input_data is None:
